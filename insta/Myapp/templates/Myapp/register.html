@@ -1,0 +1,194 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Instapulse • Register</title>
+
+<style>
+:root{
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --accent:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  --danger:#ed4956;
+  --muted:#64748b;
+  --radius:16px;
+  --shadow:0 12px 30px rgba(0,0,0,.1);
+  font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#eef2ff,var(--bg));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+/* Card */
+.card{
+  width:100%;
+  max-width:430px;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:34px 28px;
+  animation:fadeUp .6s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(24px)}
+  to{opacity:1; transform:none}
+}
+
+/* Logo */
+.logo{
+  text-align:center;
+  margin-bottom:22px;
+}
+.logo span{
+  font-size:30px;
+  font-weight:800;
+  background:var(--accent);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.logo p{
+  margin-top:6px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* Error */
+.error{
+  background:#ffe5e7;
+  color:var(--danger);
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:14px;
+  margin-bottom:14px;
+  text-align:center;
+}
+
+/* Fields */
+.field{
+  position:relative;
+  margin-bottom:16px;
+}
+.field input{
+  width:100%;
+  height:48px;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid #e6e9ef;
+  font-size:15px;
+  outline:none;
+  background:#fff;
+  transition:.2s;
+}
+.field label{
+  position:absolute;
+  top:50%;
+  left:14px;
+  transform:translateY(-50%);
+  font-size:14px;
+  color:var(--muted);
+  pointer-events:none;
+  background:#fff;
+  padding:0 4px;
+  transition:.2s;
+}
+
+.field input:focus,
+.field input:not(:placeholder-shown){
+  border-color:#fd1d1d;
+}
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label{
+  top:-7px;
+  font-size:12px;
+  color:#fd1d1d;
+}
+
+/* Button */
+.btn{
+  width:100%;
+  height:48px;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:6px;
+  box-shadow:0 10px 20px rgba(253,29,29,.25);
+  transition:transform .1s, box-shadow .1s;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+
+/* Footer */
+.small{
+  margin-top:18px;
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+}
+.small a{
+  color:#fd1d1d;
+  font-weight:600;
+  text-decoration:none;
+}
+
+@media(max-width:420px){
+  .card{padding:26px}
+}
+</style>
+</head>
+
+<body>
+<main class="card">
+  <form method="POST" novalidate>
+    {% csrf_token %}
+
+    <div class="logo">
+      <span>Instapulse</span>
+      <p style="color:black">Create your account</p>
+    </div>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="field">
+      <input type="text" name="username" required placeholder=" " />
+      <label>Username</label>
+    </div>
+
+    <div class="field">
+      <input type="email" name="email" required placeholder=" " />
+      <label>Email</label>
+    </div>
+
+    <div class="field">
+      <input type="password" name="password" required placeholder=" " />
+      <label>Password</label>
+    </div>
+
+    <button type="submit" class="btn">Create Account</button>
+
+    <p class="small">
+      Already have an account?
+      <a href="{% url 'login' %}">Log in</a>
+    </p>
+  </form>
+</main>
+</body>
+</html>
+

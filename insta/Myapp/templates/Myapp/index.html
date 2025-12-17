@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connectify</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'Myapp/style.css' %}">
+</head>
+<body>
+    <!-- Page Loader -->
+<div id="page-loader">
+  <div class="spinner"></div>
+</div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <i class="fa-solid fa-splotch"></i>
+      <h2>ɪɴꜱᴛᴀᴘᴜʟꜱᴇ</h2>
+    </div>
+
+    <div class="header-right">
+      {% if user.is_authenticated %}
+      <a href="{% url 'profile' %}">
+        <img src="{{ user.profile.profile_pic.url }}" alt="Profile" class="avatar">
+      </a>
+      {% endif %}
+      <div class="menu-icon" id="menu-toggle">
+        <i class="fa-solid fa-bars"></i>
+      </div>
+    </div>
+  </header>
+
+ 
+  <nav class="menu-bar" id="nav-menu">
+    <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
+    <a href="#" onclick="openForm()"><i class="fa-solid fa-plus"></i> Create Post</a>
+    <a href="{% url 'contact' %}"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+    <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+    <a href="{% url 'login' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    <div class="menu-license">
+      <p>© 2025 Connectify All rights reserved.</p>
+    </div>
+  </nav>
+
+  
+  <div id="overlay" class="overlay">
+    <div class="create-post">
+      <form action="{% url 'home' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Create a New Post</h2>
+        <textarea name="caption" placeholder="What's on your mind?" rows="3" required></textarea>
+        <label class="upload-label">
+          <i class="fa-solid fa-image"></i> Add Image
+          <input type="file" name="image" accept="image/*">
+        </label>
+        <div class="post-actions">
+          <button type="submit" class="btn-post"><i class="fa-solid fa-paper-plane"></i> Post</button>
+          <button type="button" class="btn-post cancel" onclick="closeForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="feed-container">
+    {% for post in posts %}
+    <div class="post">
+      <div class="post-header">
+         {% if post.user.profile.profile_pic %}
+         <img src="{{ post.user.profile.profile_pic.url }}" 
+           class="avatar profile-link" 
+           data-username="{{ post.user.username }}">
+    {% else %}
+      <img src="{% static 'default/profile.png' %}" 
+           class="avatar profile-link" 
+           data-username="{{ post.user.username }}">
+    {% endif %}
+         <div class="username profile-link" data-username="{{ post.user.username }}">
+      {{ post.user.username }}
+    </div>
+
+       
+<div class="post-options">
+  <input type="checkbox" id="toggle-{{ post.id }}" class="dropdown-toggle">
+  <label for="toggle-{{ post.id }}" class="options-btn">⋯</label>
+
+  <div class="dropdown">
+
+    {% if user == post.user %}
+      <!-- Owner -->
+      <form method="POST" action="{% url 'delete_post' post.id %}">
+        {% csrf_token %}
+        <button type="submit" class="delete-btn">Delete</button>
+      </form>
+    {% else %}
+      <!-- Not owner -->
+      <a href="{% url 'report_post' post.id %}" class="option danger">
+         Report
+      </a>
+    {% endif %}
+
+  </div>
+</div>
+
+
+      </div>
+
+      {% if post.image %}
+      <img src="{{ post.image.url }}" class="post-img">
+      {% endif %}
+
+      <div class="post-actions">
+        <form method="POST" action="{% url 'like_post' post.id %}" class="like-form">
+    {% csrf_token %}
+    <button type="submit" class="icon-btn">
+      {% if user in post.likes.all %}
+        <i class="fa-solid fa-heart liked"></i>
+      {% else %}
+        <i class="fa-regular fa-heart"></i>
+      {% endif %}
+      <span class="like-count">{{ post.likes.count }}</span>
+    </button>
+</form>
+
+
+
+  <i class="fa-regular fa-comment comment-icon" data-count="{{post.comments.count}}"></i>
+
+
+</div>
+
+<div class="caption">
+  <strong>{{ post.user.username }}</strong> {{ post.caption }}
+</div>
+
+<div class="comment-panel">
+
+  <div class="comments-scroll">
+    {% for comment in post.comments.all %}
+      <p><strong>{{ comment.user.username }}</strong> {{ comment.text }}</p>
+    {% endfor %}
+  </div>
+
+  <form method="POST" action="{% url 'add_comment' post.id %}" class="comment-form">
+    {% csrf_token %}
+    <input type="text" name="comment" placeholder="Add a comment…" required>
+    <button type="submit">Post</button>
+  </form>
+
+</div>
+
+
+    </div>
+    {% empty %}
+    <p>No posts available.</p>
+    {% endfor %}
+
+ 
+  <script>
+    
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('nav-menu').classList.toggle('show');
+    });
+
+    // Overlay
+    function openForm() { document.getElementById("overlay").style.display = "flex"; }
+    function closeForm() { document.getElementById("overlay").style.display = "none"; }
+
+
+
+
+document.querySelectorAll('.like-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // stop page reload
+
+        const btn = form.querySelector('button');
+        const icon = btn.querySelector('i');
+        const countEl = btn.querySelector('.like-count');
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.liked){
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid','liked');
+            } else {
+                icon.classList.remove('fa-solid','liked');
+                icon.classList.add('fa-regular');
+            }
+            countEl.textContent = data.likes;
+        });
+    });
+});
+
+
+
+
+
+
+
+
+    
+document.querySelectorAll('.post').forEach(post => {
+  const commentIcon = post.querySelector('.comment-icon');
+  const panel = post.querySelector('.comment-panel');
+
+  if (!commentIcon || !panel) return; // safety
+
+  commentIcon.addEventListener('click', () => {
+    panel.classList.toggle('active');
+  });
+});
+
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("page-loader");
+    loader.classList.add("hide");
+  });
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const loggedInUser = "{{ request.user.username }}";  // make sure it's a string
+
+    document.querySelectorAll('.profile-link').forEach(el => {
+        el.addEventListener('click', function() {
+            const clickedUser = this.dataset.username;
+
+            if(clickedUser && clickedUser !== loggedInUser){
+                // Redirect to other user's profile
+                window.location.href = `/profile/${clickedUser}/`;
+            }
+            // Do nothing if clickedUser is the logged-in user
+        });
+    });
+});
+  </script>
+</body>
+</html>
