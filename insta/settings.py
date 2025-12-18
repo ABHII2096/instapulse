@@ -54,7 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'insta.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'insta.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database
