@@ -438,6 +438,7 @@ img {
   .menu-bar {
     left: -100%;
     transition: 0.4s ease;
+    top: 71px;
   }
 
   .menu-bar.show {
