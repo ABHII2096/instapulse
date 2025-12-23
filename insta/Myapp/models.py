@@ -43,12 +43,38 @@ class Comment(models.Model):
         return f"{self.user.username} - {self.text[:10]}"
 
 class Follow(models.Model):
-    follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
-    following = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+    follower = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="following"
+    )
+    following = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="followers"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('follower', 'following')
 
     class Meta:
         unique_together = ('follower', 'following')
 
     def __str__(self):
         return f"{self.follower.username} follows {self.following.username}"
+
+
+
+class Report(models.Model):
+    reporter = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="reports_made"
+    )
+    post = models.ForeignKey(
+        'Post14', on_delete=models.CASCADE, related_name="reports"
+    )
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Admin response
+    admin_reply = models.TextField(blank=True, null=True)
+    is_replied = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Report by {self.reporter.username} on {self.post.id}"

@@ -38,7 +38,7 @@
     <a href="{% url 'profile' %}"><i class="fa-solid fa-user"></i> Profile</a>
     <a href="#" onclick="openForm()"><i class="fa-solid fa-plus"></i> Create Post</a>
     <a href="{% url 'contact' %}"><i class="fa-solid fa-envelope"></i> Contact Us</a>
-    <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+    <a href="{% url  'notifications'%}"><i class="fa-solid fa-bell"></i> Notifications</a>
     <a href="{% url 'login' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     <div class="menu-license">
       <p>© 2025 Connectify All rights reserved.</p>
@@ -97,10 +97,25 @@
       </form>
     {% else %}
       <!-- Not owner -->
-      <a href="{% url 'report_post' post.id %}" class="option danger">
-         Report
-      </a>
+<!-- Report Button -->
+<button type="button" class="report-btn" onclick="openReport({{ post.id }})">
+  Report
+</button>
+
+
+
     {% endif %}
+    <div id="reportPopup" class="report-modal">
+  <div class="report-box">
+    <h3>Report Post</h3>
+    <textarea id="reportReason" placeholder="Why are you reporting this post?"></textarea>
+    <div class="report-actions">
+      <button class="cancel-btn" onclick="closeReport()">Cancel</button>
+      <button class="submit-btn" onclick="sendReport()">Submit</button>
+    </div>
+  </div>
+</div>
+
 
   </div>
 </div>
@@ -228,21 +243,49 @@ document.querySelectorAll('.post').forEach(post => {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    const loggedInUser = "{{ request.user.username }}";  // make sure it's a string
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.profile-link').forEach(el => {
+    el.addEventListener('click', function () {
+      const username = this.dataset.username;
+      if (!username) return;
 
-    document.querySelectorAll('.profile-link').forEach(el => {
-        el.addEventListener('click', function() {
-            const clickedUser = this.dataset.username;
-
-            if(clickedUser && clickedUser !== loggedInUser){
-                // Redirect to other user's profile
-                window.location.href = `/profile/${clickedUser}/`;
-            }
-            // Do nothing if clickedUser is the logged-in user
-        });
+      // always redirect (own + others)
+      window.location.href = `/profile/${username}/`;
     });
+  });
 });
+
+
+
+
+let reportPostId = null;
+
+function openReport(id){
+  reportPostId = id;
+  document.getElementById("reportPopup").style.display = "flex";
+}
+
+function closeReport(){
+  document.getElementById("reportPopup").style.display = "none";
+}
+
+function sendReport(){
+  fetch(`/report/${reportPostId}/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `reason=${document.getElementById("reportReason").value}`
+  })
+  .then(() => {
+    alert("Report sent");
+    closeReport();
+    document.getElementById("reportReason").value = "";
+  });
+}
+</script>
+
   </script>
 </body>
 </html>

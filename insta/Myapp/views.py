@@ -8,8 +8,8 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .forms import ContactForm
 from Myapp.models import Post14 as Post, Follow
-from .models import Profile
-
+from .models import Profile,Report
+from .forms import ReportForm
 from django.contrib.auth import authenticate, login
 
  
@@ -162,34 +162,88 @@ def contact(request):
 
 @login_required
 def view_profile(request, username):
-    # Prevent showing own profile in "other user view"
+   
     if username == request.user.username:
-        return redirect('my_profile')  # Redirect to your own profile page
+        return redirect('my_profile') 
 
-    # Get the clicked user's profile
+   
     user_profile = get_object_or_404(User, username=username)
     
-    # Pass only the clicked user's info to template
+   
     context = {
-        'user_profile': user_profile,  # NOT request.user.profile
+        'user_profile': user_profile, 
     }
     return render(request, 'Myapp/other.html', context)
 
 
+
+
+@login_required
+def report_post(request, post_id):
+    if request.method == 'POST':
+        post = get_object_or_404(Post14, id=post_id)
+        form = ReportForm(request.POST)
+
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.post = post
+            report.save()
+            return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False}, status=400)
+
+
+@login_required
+def notifications(request):
+    reports = Report.objects.filter(
+        reporter=request.user,
+        is_replied=True
+    ).order_by('-created_at')
+
+    return render(request, 'Myapp/notifications.html', {'reports': reports})
+
+
+
+@login_required
+def profile_view(request, username):
+    user_profile = get_object_or_404(User, username=username)
+    posts = Post14.objects.filter(user=user_profile)
+
+    followers_count = Follow.objects.filter(following=user_profile).count()
+    following_count = Follow.objects.filter(follower=user_profile).count()
+
+    is_following = False
+    if request.user != user_profile:
+        is_following = Follow.objects.filter(
+            follower=request.user,
+            following=user_profile
+        ).exists()
+
+    context = {
+        'user_profile': user_profile,
+        'posts': posts,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'is_following': is_following,
+    }
+    return render(request, 'Myapp/profile.html', context)
+
+
+
+
+
+# views.py
 @login_required
 def follow_toggle(request, username):
-    target_user = get_object_or_404(User, username=username)
-    follow_obj, created = Follow.objects.get_or_create(follower=request.user, following=target_user)
+    user_to_follow = get_object_or_404(User, username=username)
 
-    if not created:
-        follow_obj.delete()  
+    if request.user != user_to_follow:
+        follow, created = Follow.objects.get_or_create(
+            follower=request.user,
+            following=user_to_follow
+        )
+        if not created:
+            follow.delete()
 
-    return redirect('profile_view', username=username)
-
-
-def report_post(request, post_id):
-    post = get_object_or_404(Post14, id=post_id)
-    if post.user == request.user:
-        return HttpResponseForbidden()
-    # save report
-    return redirect('home')
+    return redirect('profile', username=username)

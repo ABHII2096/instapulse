@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post14, Profile,ContactMessage,Comment
+from .models import Post14, Profile,ContactMessage,Comment,Report
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -20,3 +20,14 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['text']
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ['reason']
+        widgets = {
+            'reason': forms.Textarea(attrs={
+                'placeholder': 'Explain the problem...',
+                'rows': 3
+            })
+        }

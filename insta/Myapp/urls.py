@@ -10,6 +10,7 @@ urlpatterns = [
     path('register/', views.register_user, name='register'),
     path('home/', views.home, name='home'),
     path('contact/',views.contact,name='contact'),
+    path('notifications/',views.notifications,name='notifications'),
    path('like/<int:post_id>/', views.like_post, name='like_post'),
 
   path('comment/<int:post_id>/', views.add_comment, name='add_comment'),
@@ -17,11 +18,15 @@ urlpatterns = [
 
 
     path('post/delete/<int:post_id>/', views.delete_post, name='delete_post'),
-    path('post/report/<int:post_id>/', views.report_post, name='report_post'),
+    path('report/<int:post_id>/', views.report_post, name='report_post'),
+
+
   
     path("profile/", views.profile, name="profile"),
- path('profile/<str:username>/', views.view_profile, name='view_profile'),
-   path("follow/<int:user_id>/", views.follow_toggle, name="follow_toggle"),
+
+path('profile/<str:username>/', views.profile_view, name='profile'),
+path('follow/<str:username>/', views.follow_toggle, name='follow'),
+
 
 
 

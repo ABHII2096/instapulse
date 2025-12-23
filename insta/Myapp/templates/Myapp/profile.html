@@ -4,6 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <title>{{ user_profile.username }} Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 
 <style>
@@ -237,41 +239,9 @@ body{
 }
 
 
-/* ===== MOBILE (INSTAGRAM STYLE) ===== */
-@media (max-width:768px){
 
-  .profile-top{
-    flex-direction:column;
-    gap:15px;
-    text-align:center;
-  }
 
-  .profile-pic img{
-    width:110px;
-    height:110px;
-  }
 
-  .follow-counts{
-    justify-content:center;
-    gap:25px;
-  }
-
-  .user-bio{
-    margin:0 auto;
-  }
-
-  .post-gallery{
-    gap:2px;
-  }
-
-  /* popup bottom sheet */
-  .popup-content{
-    max-width:100%;
-    border-radius:20px 20px 0 0;
-    position:absolute;
-    bottom:0;
-  }
-}
 .header {
   display: flex;
   justify-content: space-between;
@@ -308,15 +278,6 @@ body{
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
-@media (max-width: 900px) {
-  .logo i {
-    font-size: 25px !important; 
-  }
-
-  .logo h2 {
-    font-size: 25px !important; 
-  }
-}
 
 
 
@@ -325,6 +286,85 @@ body{
   align-items: center;
   gap: 15px;
 }
+
+
+
+/* ================= MOBILE & TABLET (≤ 932px) ================= */
+@media (max-width: 932px) {
+
+  .profile-container {
+    padding: 0 14px;
+  }
+
+  /* Top layout */
+  .profile-top {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+  }
+
+  /* Profile image */
+  .profile-pic img {
+    width: 86px;
+    height: 86px;
+  }
+
+  /* Username */
+  .profile-info h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  /* Button full width */
+  .profile-buttons {
+    margin-bottom: 6px;
+  }
+
+  .edit-btn {
+    width: 100%;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  /* Stats row like Instagram */
+  .follow-counts {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  .follow-counts span {
+    flex: 1;
+    text-align: center;
+  }
+
+  /* Bio */
+  .user-bio {
+    font-size: 13px;
+    margin-top: 8px;
+    max-width: 100%;
+  }
+
+  /* Grid */
+  .post-gallery {
+    gap: 2px;
+    margin-top: 12px;
+  }
+
+  /* Header */
+  .header {
+    height: 56px;
+    padding: 10px 14px;
+  }
+
+  .logo h2 {
+    font-size: 22px !important;
+  }
+}
+
 </style>
 </head>
 
@@ -359,9 +399,26 @@ body{
     <div class="profile-info">
       <h2>{{ user_profile.username }}</h2>
 
-      <div class="profile-buttons">
-        <button class="edit-btn" onclick="openPopup()">Edit Profile</button>
-      </div>
+     <div class="profile-buttons">
+
+  {% if request.user == user_profile %}
+    <button class="edit-btn" onclick="openPopup()">Edit Profile</button>
+
+  {% else %}
+    <form method="POST" action="{% url 'follow' user_profile.username %}">
+      {% csrf_token %}
+      <button class="edit-btn">
+       
+        {% if is_following %}
+          Unfollow
+        {% else %}
+          Follow
+        {% endif %}
+      </button>
+    </form>
+  {% endif %}
+
+</div>
 
       <div class="follow-counts">
         <span><strong>{{ posts|length }}</strong> Posts</span>
