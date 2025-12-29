@@ -519,9 +519,10 @@ img {
   }
 
   .menu-bar {
-    left: -100%;
+    left: -105%;
     transition: 0.4s ease;
     top: 71px;
+
   }
 
   .menu-bar.show {
