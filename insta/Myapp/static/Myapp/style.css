@@ -160,12 +160,17 @@ img {
   flex-direction: column;
 }
 
+/* ================= POST IMAGE (CLEAN & RESPONSIVE) ================= */
+
 .post-img {
   width: 100%;
-  height: 300px;
-  object-fit: cover;
-  border-bottom: 1px solid #dbdbdb;
+  height: auto;              /* important */
+  max-height: 90vh;          /* prevents overflow on tall images */
+  object-fit: contain;       /* SHOW FULL IMAGE */
+  background: #000;          /* optional black bars like Instagram */
+  display: block;
 }
+
 /* Report button */
 .report-btn {
   background: transparent;
@@ -330,28 +335,7 @@ img {
   transform: scale(1.15);
 }
 
-@media (max-width: 768px) {
-  .post-actions {
-    gap: 12px;
-    padding: 8px 10px;
-  }
 
-  .post-actions .fa-heart,
-  .post-actions .comment-icon {
-    font-size: 20px;
-  }
-
-  .post-actions .icon-btn,
-  .post-actions .comment-icon::after {
-    font-size: 13px;
-  }
-
-  .post {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-}
 
 .comment-panel {
   display: none;
@@ -643,7 +627,13 @@ img {
   .post-header {
     padding: 8px 10px;
   }
-
+  @media (max-width: 768px) {
+  .post-img {
+    height: 350px;
+    width: 100%;
+    background: #000000; /* black bars (like Instagram) */
+  }
+}
   .post-user .profile-pic {
     width: 28px;
     height: 28px;
@@ -664,6 +654,26 @@ img {
   .delete-btn {
     padding: 6px 10px;
     font-size: 13px;
+  }
+    .post-actions {
+    gap: 12px;
+    padding: 8px 10px;
+  }
+
+  .post-actions .fa-heart,
+  .post-actions .comment-icon {
+    font-size: 20px;
+  }
+
+  .post-actions .icon-btn,
+  .post-actions .comment-icon::after {
+    font-size: 13px;
+  }
+
+  .post {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 }
 .option.danger {
